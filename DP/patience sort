@@ -1,0 +1,14 @@
+//DP with some heuristic
+//1. any random number i and number j in the deck, if j>i (index-wise)
+//then must arr[j]>arr[i]
+//2. for any replaced number a, and the replacing number b, they are:
+//i) !(arr[b]>arr[a]) => arr[b]<=arr[a] in this case
+//ii) any incoming value c (index-wise: c>b>a), if arr[c]>arr[a], must arr[c]>arr[b]
+let patientSort = (arr) => {
+    let deck = []
+    for (let i=0; i<arr.length; i++) {
+        let j = binarySearch(deck,0,deck.length,arr[i]) //find the smallest element that is larger or equal to target
+        deck[j] = arr[i]
+    }
+    return deck.length
+}
