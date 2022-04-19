@@ -1,0 +1,13 @@
+/*
+using the conventional pq to perform dijkstra
+presumptions
+1. a DS getting edges for vertices in O(1)
+=> adjList,adjMatrix or such.
+2. a DS to get the node with the shortest distance from source currently
+=> a binary minHeap, n-ary minHeap, fibonacci minHeap or priority indexed queue.
+
+
+*/
+
+
+
