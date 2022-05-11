@@ -1,4 +1,5 @@
-## Algorithm-and-Data-structure
+# Algorithm-and-Data-structure
 
-mainly in c++
-will update with JS 
+The goal is to provide data structures and algorithms not supported by C++ standard library.
+The priority is for personal use so that time is saved when a ds or algo is required.
+
