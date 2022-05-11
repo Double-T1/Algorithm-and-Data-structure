@@ -2,7 +2,6 @@
 
 DS included:\
   trie, tray, suffix tree, suffix array, lcp array, lps array(in KMP algo)\
-
 Algo included:\
-  Rabing Karp, KMP, Z, boyer moore, finite automata\
+  Rabing Karp, KMP, Z, boyer moore, finite automata
   
