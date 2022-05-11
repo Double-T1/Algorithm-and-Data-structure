@@ -1,4 +1,4 @@
-most of the ds and algos here are for pattern matching
+most of the ds and algos here are for pattern matching /n
 DS included:
   trie, tray, suffix tree, suffix array, lcp array, lps array(in KMP algo)
 
