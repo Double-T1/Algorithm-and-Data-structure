@@ -1,7 +1,6 @@
 //assuming the input graph is represented with an edge list
 //the format of the edge list is [v1,v2,weight]
 //note the graph is undirected here
-function kruskal (edges,n) {
-    edges.sort((a,b)=>a[2]-b[2])
-    
+int kruskal() {
+    return 1;
 }
