@@ -1,4 +1,4 @@
-s#include <iostream>
+#include <iostream>
 #include <stack>
 #include <algorithm>
 #include <functional>
@@ -79,9 +79,21 @@ void build_suffix(vector<int>& suf, vector<int>& rank, string & s) {
     }
 }
 
-/*
-class, 
+void build_lcp(string& s, vector<int>& lcp, vector<int>& suf) {
+    s += '#';
+    vector<int> rank;
+    build_suffix(suf,rank,s);
+    
+    int n = s.size(), k = 0;
+    lcp.resize(n-1);
+    for (int i=0; i<n-1; ++i) { 
+        int si = rank[i];
+        //if (si == 0) continue;
+        int j = suf[si-1];
 
-
-
-*/
+        while (s[i+k] == s[j+k]) k++;
+        lcp[si-1] = k;
+        k = max(0,k-1);
+    }
+    s.pop_back();
+}
