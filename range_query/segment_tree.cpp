@@ -1,63 +1,93 @@
-#include <iostream>
-#include <stack>
-#include <algorithm>
-#include <functional>
-#include <vector>
-#include <string>
-#include <string.h>
-#include <string_view>
-#include <unordered_set> 
-#include <unordered_map>
-#include <map>
-#include <array>
-#include <numeric>
-#include <utility>
-
-#include <cstdlib>
-#include <ctime>
 using namespace std;
 
-
+//with lazy propagation
 class SegmentTree {
+//attributes to be determined by the user
 private:
-    vector<int> segment;
     int originalEnd;
-
+    vector<int> segment;
+    vector<int> lazy;
+    void update_function();
+    void merge_function();
+    void compare_function();
+    
 public:
-    template <typename T>
-    SegmentTree(T& a) {
-        int size = 1, n = a.size();
+    SegmentTree(vector<int>& arr) {
+        int n = arr.size();
         originalEnd = n-1;
-        while (size < 2*n)
+        int size = 1;
+        while (size < 2*n) {
             size <<= 1;
+        }
         
         segment.resize(size,0);
+        lazy.resize(size,0);
+        
+        build_tree(arr,0,0,n-1);
+    }
+    
+    void update_point(int index, int delta) {
+        update_helper(index,index,delta,0,0,originalEnd);
+    }
+    
+    void update_range(int left, int right, int delta) {
+        update_helper(left, right, delta, 0, 0, originalEnd);
+    }
+    
+    int query_point(int index) {
+        return query_helper(index, index, 0, 0, originalEnd);
+    }
+    
+    int query_range(int left, int right) {
+        return query_helper(left, right, 0, 0, originalEnd);
     }
 
-    void update_point(int val, int i) { return update_range(val,i,i,0,0,originalEnd); }
-    void update_range(int val, int left, int right) { return update_range(val,left,right,0,0,originalEnd); }
-    void update_range(int val, int left, int right, int pos, int sLeft, int sRight) {
-        if (left > sRight || right < sLeft) return;
-
-        //without lazy propogation
-        if (sLeft == sRight) {
-            segment[pos] = compare(segment[pos],val);
-            return
+private:
+    int build_tree(vector<int>& original, int sPos, int left, int right) {
+        if (left == right) {
+            return segment[sPos] = original[left];
         }
-        // with lazy propogation
-        // if (left <= sLeft && sRight <= right) {
-        //     segment[pos] = compare(segment[pos],val);
-        //     return;
-        // } 
-
-        int leftTree = 2*pos+1, rightTree = 2*pos+2, mid = sLeft + (sRight-sLeft)/2;
-        update_range(val,left,right,leftTree,sLeft,mid);
-        update_range(val,left,right,rightTree,mid+1,sRight);
-        merge(pos);
+        
+        int leftTree = sPos*2 + 1, rightTree = sPos*2 + 2, mid = left + (right-left)/2;
+        return segment[sPos] = merge(build_tree(original,leftTree,left,mid)
+            + build_tree(original,rightTree,mid+1,right));
     }
-
-    int query_point(int index) {return query_range(index,index); }
-    int query_range(int left, int right, int pos=0, int sLeft=0, int sRight=originalEnd) {
+    
+    int update_helper(int left, int right, int delta, int sPos, int sLeft, int sRight) {
+        //lazy update first
+        if (lazy[sPos]) {
+            if (sLeft != sRight) update_lazy_sub(sPos,delta);
+            segment[sPos] = update_function(segment, sPos, delta, lazy[sPos]);
+            lazy[sPos] = 0;
+        }
+        
+        if (left > sRight || right < sLeft) return segment[sPos];
+        
+        if (sLeft >= left && sRight <= right) {
+            if (sLeft != sRight) update_lazy_sub(sPos);
+            return segment[sPos] = update_function(segment, sPos, delta);
+        }
+        
+        int sMid = sLeft + (sRight-sLeft)/2;
+        int leftTree = sPos * 2 + 1, rightTree = sPos * 2 + 2;
+        return segment[sPos] = merge(update_helper(left,right,delta,leftTree,sLeft,sMid)
+            , update_helper(left,right,delta,rightTree,sMid+1,sRight));
+    }
+    
+    void update_lazy_sub(int sPos,int delta) {
+        lazy[sPos * 2 + 1] ^= 1;
+        lazy[sPos * 2 + 2] ^= 1;
+        return;
+    }
+    
+    int query_helper(int left, int right, int pos, int sLeft, int sRight) {
+        //lazy update first
+        if (lazy[sPos]) {
+            if (sLeft != sRight) update_lazy_sub(sPos,delta);
+            segment[sPos] = update_function(segment, sPos, delta, lazy[sPos]);
+            lazy[sPos] = 0;
+        }
+        
         if (left > sRight || sLeft > right) return -1;
 
         if (left <= sLeft && sRight <= right) {
@@ -67,9 +97,16 @@ public:
         int leftTree = 2*pos+1, rightTree = 2*pos+2, mid = sLeft + (sRight-sLeft)/2;
         return compare(query_range(left,right,leftTree,sLeft,mid),query_range(left,right,rightTree,mid+1,sRight));
     }
-
-private:
-    virtual void merge() {
-        //do someting 
+    
+    virtual int merge(int sPos) {
+        int leftTree = 2*sPos + 1, rightTree = 2*sPos + 2;
+        //dictates the relationship between children nodes and parent nodes
+        //i.e. for a max segment tree
+        //merge() := { parent = max(child_a,child_b); }
+        return segment[sPos] = merge_function(segment[leftTree],segment[rightTree]);
     }
-}
+    
+    virtual int compare(int a, int b) {
+        return compare_function(a,b);
+    }
+};
